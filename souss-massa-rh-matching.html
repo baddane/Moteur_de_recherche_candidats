@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Souss-Massa RH — Matching Emploi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4aa;
+    --accent2: #0066ff;
+    --text: #e8edf5;
+    --muted: #6b7a99;
+    --danger: #ff4d6d;
+    --warn: #ffb347;
+  }
+
+  body.light {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #e8edf5;
+    --border: #d1dae8;
+    --accent: #00a884;
+    --accent2: #0055cc;
+    --text: #0d1b2a;
+    --muted: #5a6a85;
+  }
+
+  body.light::before {
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 0%, rgba(0,168,132,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 100%, rgba(0,85,204,0.06) 0%, transparent 60%);
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.35rem 0.9rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background mesh */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 10% 0%, rgba(0,212,170,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 100%, rgba(0,102,255,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.03em;
+  }
+  .logo span { color: var(--accent); }
+
+  .badge {
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: rgba(0,212,170,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,212,170,0.2);
+    padding: 0.3rem 0.8rem;
+    border-radius: 100px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: rgba(0,212,170,0.3); }
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 300; }
+
+  /* Two column layout */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Panels */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.8rem;
+  }
+
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .panel-title .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(0,212,170,0.02);
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(0,212,170,0.06);
+  }
+  .upload-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+  .upload-text { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+  .upload-text strong { color: var(--accent); }
+  #fileInput { display: none; }
+
+  .file-loaded {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: rgba(0,212,170,0.08);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin-top: 1rem;
+  }
+  .file-loaded .icon { font-size: 1.5rem; }
+  .file-loaded .info { flex: 1; }
+  .file-loaded .fname { font-weight: 500; font-size: 0.9rem; color: var(--accent); }
+  .file-loaded .fcount { font-size: 0.78rem; color: var(--muted); }
+
+  /* Form */
+  label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  input[type="text"], textarea, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+  input[type="text"]:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+  }
+  textarea { min-height: 140px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  /* Button */
+  .btn-match {
+    width: 100%;
+    padding: 1rem;
+    background: var(--accent);
+    color: #0a0f1e;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+  }
+  .btn-match:hover { background: #00f0c0; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,212,170,0.25); }
+  .btn-match:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Results */
+  .results-section { margin-top: 2rem; }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+  }
+  .results-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .results-count {
+    font-size: 0.8rem;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.9rem;
+    border-radius: 100px;
+  }
+
+  /* Candidate card */
+  .candidates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+  }
+
+  .candidate-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease forwards;
+    opacity: 0;
+  }
+  .candidate-card:hover {
+    border-color: rgba(0,212,170,0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .score-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--border);
+  }
+  .score-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .avatar {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .avatar.m { background: rgba(0,102,255,0.15); color: #4d9fff; }
+  .avatar.f { background: rgba(0,212,170,0.15); color: var(--accent); }
+
+  .score-badge {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .score-badge span { font-size: 0.7rem; color: var(--muted); font-weight: 400; }
+
+  .candidate-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    flex: 1;
+    padding: 0 0.8rem;
+  }
+
+  .candidate-info {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .candidate-info .tag {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+    margin: 0.15rem 0.15rem 0 0;
+    font-size: 0.72rem;
+    color: var(--text);
+  }
+  .candidate-info .tag.match {
+    background: rgba(0,212,170,0.1);
+    border-color: rgba(0,212,170,0.3);
+    color: var(--accent);
+  }
+
+  .contact-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .contact-btn {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 0.75rem;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    transition: all 0.15s;
+  }
+  .contact-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,212,170,0.05);
+  }
+
+  /* Empty / loading states */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+  .empty-text { font-size: 0.9rem; line-height: 1.6; }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    color: var(--muted);
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Filters */
+  .filters {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+  }
+  .filter-chip {
+    padding: 0.35rem 0.9rem;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-chip:hover, .filter-chip.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,212,170,0.08);
+  }
+
+  .export-btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .export-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo">Souss-Massa <span>RH</span></div>
+    <div style="display:flex;align-items:center;gap:0.8rem">
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️ Mode clair</button>
+      <div class="badge">Outil de Matching</div>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-card">
+      <div class="stat-val" id="statTotal">0</div>
+      <div class="stat-label">Chercheurs chargés</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statActif">0</div>
+      <div class="stat-label">Profils actifs</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statDiplomes">0</div>
+      <div class="stat-label">Avec diplôme</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statMatch">—</div>
+      <div class="stat-label">Résultats dernier match</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+
+    <!-- LEFT: Upload -->
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span> Base Chercheurs</div>
+
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">📂</div>
+        <div class="upload-text">
+          <strong>Glissez votre export SIGEC</strong><br>
+          ou cliquez pour sélectionner<br>
+          <small style="opacity:0.6">Format .xls ou .xlsx — toutes lignes supportées</small>
+        </div>
+      </div>
+      <input type="file" id="fileInput" accept=".xls,.xlsx">
+
+      <div id="fileInfo" style="display:none" class="file-loaded">
+        <div class="icon">✅</div>
+        <div class="info">
+          <div class="fname" id="fileName">—</div>
+          <div class="fcount" id="fileCount">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Offre -->
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span> Offre d'Emploi</div>
+
+      <label>Intitulé du Poste</label>
+      <input type="text" id="poste" placeholder="Ex: Technicien en génie civil, Infirmier, Comptable...">
+
+      <label>Niveau de Diplôme Requis</label>
+      <select id="niveau">
+        <option value="">— Tous niveaux —</option>
+        <option value="bac">Baccalauréat</option>
+        <option value="bac2">Bac+2 / Technicien spécialisé</option>
+        <option value="bac3">Bac+3 / Licence</option>
+        <option value="bac5">Bac+5 / Master</option>
+        <option value="technicien">Technicien</option>
+        <option value="qualification">Qualification / Spécialisation</option>
+        <option value="sans">Sans diplôme accepté</option>
+      </select>
+
+      <label>Mots-clés / Spécialités (séparés par virgule)</label>
+      <input type="text" id="keywords" placeholder="Ex: comptabilité, gestion, bâtiment, informatique...">
+
+      <div class="form-row">
+        <div>
+          <label>Genre</label>
+          <select id="genre">
+            <option value="">— Indifférent —</option>
+            <option value="M">Homme</option>
+            <option value="F">Femme</option>
+          </select>
+        </div>
+        <div>
+          <label>Statut d'Activité</label>
+          <select id="statutActivite">
+            <option value="">— Tous —</option>
+            <option value="Actif">Actif</option>
+            <option value="Inactif">Inactif</option>
+            <option value="Inséré">Inséré</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label>Ville</label>
+          <input type="text" id="ville" list="villesList" placeholder="Ex: Agadir, Inezgane..." autocomplete="off" oninput="filterQuartiers()">
+          <datalist id="villesList"></datalist>
+        </div>
+        <div>
+          <label>Quartier / Zone</label>
+          <input type="text" id="quartier" list="quartiersList" placeholder="Ex: Tikiouine, Bensergao, Anza..." autocomplete="off">
+          <datalist id="quartiersList"></datalist>
+        </div>
+      </div>
+
+      <button class="btn-match" id="btnMatch" onclick="doMatch()" disabled>
+        ⚡ Lancer le Matching
+      </button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-section" id="resultsSection">
+    <div class="empty-state">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-text">Chargez votre base de chercheurs<br>puis saisissez une offre pour lancer le matching</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let allCandidates = [];
+let lastResults = [];
+
+// Drag & drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+});
+
+document.getElementById('fileInput').addEventListener('change', e => {
+  if (e.target.files[0]) processFile(e.target.files[0]);
+});
+
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      let data;
+      const fileName = file.name.toLowerCase();
+      
+      // Try XLSX first
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      } catch(ex) {
+        // Fallback: parse as HTML table (SIGEC format)
+        const text = new TextDecoder('utf-8').decode(new Uint8Array(e.target.result));
+        data = parseHTMLTable(text);
+      }
+
+      allCandidates = data.map(normalizeCandiate).filter(c => c.nom);
+      updateStats();
+      
+      document.getElementById('fileInfo').style.display = 'flex';
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('fileCount').textContent = `${allCandidates.length} chercheurs chargés`;
+      document.getElementById('btnMatch').disabled = false;
+      
+    } catch(err) {
+      alert('Erreur lors de la lecture du fichier. Vérifiez le format.');
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseHTMLTable(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const rows = doc.querySelectorAll('tr');
+  if (!rows.length) return [];
+  
+  const headers = Array.from(rows[0].querySelectorAll('th,td')).map(td => td.textContent.trim());
+  const result = [];
+  
+  for (let i = 1; i < rows.length; i++) {
+    const cells = Array.from(rows[i].querySelectorAll('td')).map(td => td.textContent.trim());
+    if (!cells.length) continue;
+    const obj = {};
+    headers.forEach((h, idx) => obj[h] = cells[idx] || '');
+    result.push(obj);
+  }
+  return result;
+}
+
+function normalizeCandiate(row) {
+  // Handle both possible column names
+  const get = (...keys) => {
+    for (const k of keys) {
+      const val = row[k] || row[k.toLowerCase()] || '';
+      if (val) return String(val).trim();
+    }
+    return '';
+  };
+  
+  return {
+    cin: get('CIN', 'cin'),
+    nom: get('Nom et prenom', 'nom', 'NOM'),
+    genre: get('Genre', 'genre'),
+    naissance: get('Date naissance', 'date_naissance'),
+    ville: get('Ville', 'ville'),
+    adresse: get('Adresse', 'adresse'),
+    email: get('E-mail', 'email', 'Email'),
+    gsm: get('GSM', 'gsm', 'Tel', 'tel'),
+    diplome: get('Diplome', 'diplôme', 'DIPLOME'),
+    statutInscription: get('Statut Inscription'),
+    statutActivite: get('Statut Activite'),
+  };
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = allCandidates.length;
+  document.getElementById('statActif').textContent = allCandidates.filter(c => 
+    c.statutActivite.toLowerCase().includes('actif')).length;
+  document.getElementById('statDiplomes').textContent = allCandidates.filter(c => 
+    c.diplome && !c.diplome.toLowerCase().includes('sans diplome') && c.diplome.trim() !== '').length;
+  buildSuggestions();
+}
+
+// Map ville → set de quartiers extraits des adresses
+let villeQuartiersMap = {};
+
+function buildSuggestions() {
+  villeQuartiersMap = {};
+  const villesSet = new Set();
+
+  allCandidates.forEach(c => {
+    const ville = c.ville ? c.ville.trim() : '';
+    if (ville) {
+      villesSet.add(ville);
+      if (!villeQuartiersMap[ville]) villeQuartiersMap[ville] = new Set();
+    }
+
+    // Extraire mots significatifs de l'adresse comme quartiers
+    const adresse = (c.adresse || '').toLowerCase();
+    const mots = adresse.match(/[a-zàâäéèêëîïôùûü]{4,}/g) || [];
+    const stopWords = new Set(['bloc','appt','avec','dans','pour','ville','agadir','maroc','avenue','numero','immeuble','douar','route','lotissement','residence','cite','sidi']);
+    mots.forEach(m => {
+      if (!stopWords.has(m) && ville) {
+        villeQuartiersMap[ville].add(m.charAt(0).toUpperCase() + m.slice(1));
+      }
+    });
+  });
+
+  // Remplir datalist villes
+  const villesDl = document.getElementById('villesList');
+  villesDl.innerHTML = '';
+  [...villesSet].sort().forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v;
+    villesDl.appendChild(opt);
+  });
+
+  // Remplir datalist quartiers (tous par défaut)
+  filterQuartiers();
+}
+
+function filterQuartiers() {
+  const villeInput = document.getElementById('ville').value.trim().toUpperCase();
+  const dl = document.getElementById('quartiersList');
+  dl.innerHTML = '';
+
+  // Cherche la ville correspondante dans la map
+  let quartiers = new Set();
+  Object.entries(villeQuartiersMap).forEach(([ville, qs]) => {
+    if (!villeInput || ville.toUpperCase().includes(villeInput)) {
+      qs.forEach(q => quartiers.add(q));
+    }
+  });
+
+  // Trier par fréquence décroissante (les plus présents d'abord)
+  const freq = {};
+  allCandidates.forEach(c => {
+    if (villeInput && !(c.ville || '').toUpperCase().includes(villeInput)) return;
+    const adresse = (c.adresse || '').toLowerCase();
+    quartiers.forEach(q => {
+      if (adresse.includes(q.toLowerCase())) {
+        freq[q] = (freq[q] || 0) + 1;
+      }
+    });
+  });
+
+  [...quartiers]
+    .filter(q => (freq[q] || 0) >= 3) // seuil minimum : au moins 3 profils
+    .sort((a, b) => (freq[b] || 0) - (freq[a] || 0))
+    .slice(0, 40)
+    .forEach(q => {
+      const opt = document.createElement('option');
+      opt.value = q;
+      opt.label = `${q} (${freq[q] || 0})`;
+      dl.appendChild(opt);
+    });
+}
+
+function computeAge(naissance) {
+  if (!naissance) return null;
+  const parts = naissance.split('/');
+  if (parts.length !== 3) return null;
+  const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+  const age = Math.floor((Date.now() - date.getTime()) / (365.25 * 24 * 3600 * 1000));
+  return isNaN(age) ? null : age;
+}
+
+const niveauMap = {
+  bac: ['baccalauréat', 'bac '],
+  bac2: ['bac + 2', 'technicien spécialisé', 'brevet de technicien'],
+  bac3: ['bac + 3', 'bachelor', 'licence', 'diplôme du 1er cycle', '1er cycle'],
+  bac5: ['bac + 5', 'master', 'ingénieur', '2ème cycle', 'deug'],
+  technicien: ['technicien ,', 'technicien,'],
+  qualification: ['qualification', 'spécialisation', 'csp', 'cqp'],
+  sans: ['sans diplome', 'sans diplôme', 'aucune formation'],
+};
+
+function scoreCandidate(c, poste, niveauKey, keywords, villeFilter, quartierFilter) {
+  let score = 0;
+  const diplomeLower = (c.diplome || '').toLowerCase();
+  const villeLower = (c.ville || '').toLowerCase();
+  const adresseLower = (c.adresse || '').toLowerCase();
+  const matchedKeywords = [];
+
+  // Extraire les spécialités (partie après la virgule dans chaque segment niveau,spécialité/)
+  const specialites = diplomeLower.split('/').map(s => {
+    const parts = s.split(',');
+    return parts.slice(1).join(',').trim();
+  }).filter(s => s.length > 0);
+  const specialitesJoined = specialites.join(' ');
+
+  // ── 1. Vérifier le niveau diplôme ──────────────────────────────
+  let niveauMatch = false;
+  if (niveauKey && niveauMap[niveauKey]) {
+    niveauMatch = niveauMap[niveauKey].some(p => diplomeLower.includes(p));
+  }
+
+  // ── 2. Vérifier poste et keywords dans les SPÉCIALITÉS uniquement ──
+  let contentScore = 0;
+  const hasContentCriteria = !!(poste && poste.trim()) || keywords.length > 0;
+
+  if (poste && poste.trim()) {
+    const posteWords = poste.toLowerCase().trim().split(/\s+/).filter(w => w.length > 3);
+    posteWords.forEach(w => {
+      if (specialitesJoined.includes(w)) {
+        contentScore += 35;
+        if (!matchedKeywords.includes(w)) matchedKeywords.push(w);
+      }
+    });
+  }
+
+  keywords.forEach(kw => {
+    const kwl = kw.toLowerCase().trim();
+    if (!kwl) return;
+    if (specialitesJoined.includes(kwl)) {
+      contentScore += 30;
+      matchedKeywords.push(kw.trim());
+    }
+  });
+
+  // ── 3. Règles de combinaison strictes ─────────────────────────
+  // Si niveau ET contenu spécifiés → les deux doivent matcher
+  if (niveauKey && hasContentCriteria) {
+    if (!niveauMatch || contentScore === 0) return { score: -1, matchedKeywords };
+    score = contentScore + 25;
+  }
+  // Si seulement niveau → doit matcher le niveau
+  else if (niveauKey && !hasContentCriteria) {
+    if (!niveauMatch) return { score: -1, matchedKeywords };
+    score = 30;
+  }
+  // Si seulement contenu → doit avoir au moins un match spécialité
+  else if (!niveauKey && hasContentCriteria) {
+    if (contentScore === 0) return { score: -1, matchedKeywords };
+    score = contentScore;
+  }
+  // Aucun critère → laisse passer
+  else {
+    score = 10;
+  }
+
+  // ── 4. Bonus qualité profil ────────────────────────────────────
+  if (c.statutActivite.toLowerCase().includes('actif')) score += 8;
+  if (c.statutInscription.toLowerCase().includes('validé')) score += 4;
+
+  // ── 5. Ville — filtre strict ───────────────────────────────────
+  // ── 5. Ville — filtre strict insensible à la casse ────────────
+  if (villeFilter) {
+    const vf = villeFilter.toLowerCase().trim();
+    if (villeLower === vf || adresseLower.includes(vf)) {
+      score += 10;
+    } else {
+      return { score: -1, matchedKeywords };
+    }
+  }
+
+  // ── 6. Quartier — saisie libre, matching mot par mot ──────────
+  if (quartierFilter) {
+    const qf = quartierFilter.toLowerCase().trim();
+    // Cherche chaque mot significatif dans l'adresse
+    const qfWords = qf.split(/\s+/).filter(w => w.length > 2);
+    const adresseFull = (adresseLower + ' ' + villeLower);
+    const matched = qfWords.length > 0
+      ? qfWords.some(w => adresseFull.includes(w))  // au moins un mot correspond
+      : adresseFull.includes(qf);
+    if (matched) {
+      score += 15;
+      matchedKeywords.push('📍 ' + quartierFilter);
+    } else {
+      return { score: -1, matchedKeywords };
+    }
+  }
+
+  return { score, matchedKeywords };
+}
+
+
+function toggleTheme() {
+  const body = document.body;
+  const btn = document.getElementById('themeBtn');
+  body.classList.toggle('light');
+  const isLight = body.classList.contains('light');
+  btn.textContent = isLight ? '🌙 Mode sombre' : '☀️ Mode clair';
+}
+
+function doMatch() {
+  const poste = document.getElementById('poste').value.trim();
+  const niveau = document.getElementById('niveau').value;
+  const keywordsRaw = document.getElementById('keywords').value;
+  const ville = document.getElementById('ville').value.trim();
+  const quartier = document.getElementById('quartier').value.trim();
+  const genreFilter = document.getElementById('genre').value;
+  const statutFilter = document.getElementById('statutActivite').value;
+
+  const keywords = keywordsRaw ? keywordsRaw.split(',').map(k => k.trim()).filter(Boolean) : [];
+
+  if (!poste && !niveau && keywords.length === 0 && !ville && !quartier && !genreFilter) {
+    alert('Veuillez saisir au moins un critère de recherche.');
+    return;
+  }
+
+  document.getElementById('resultsSection').innerHTML = `
+    <div class="loading"><div class="spinner"></div> Analyse de ${allCandidates.length} profils...</div>`;
+
+  setTimeout(() => {
+    const scored = allCandidates
+      .filter(c => !genreFilter || c.genre === genreFilter)
+      .filter(c => !statutFilter || c.statutActivite.toLowerCase().includes(statutFilter.toLowerCase()))
+      .map(c => {
+        const { score, matchedKeywords } = scoreCandidate(c, poste, niveau, keywords, ville, quartier);
+        return { ...c, score, matchedKeywords };
+      })
+      .filter(c => c.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    lastResults = scored;
+    document.getElementById('statMatch').textContent = scored.length;
+    renderResults(scored, poste);
+  }, 300);
+}
+
+function renderResults(results, poste) {
+  const section = document.getElementById('resultsSection');
+  
+  if (!results.length) {
+    section.innerHTML = `
+      <div class="no-results">
+        <div style="font-size:2rem;margin-bottom:0.5rem">🔍</div>
+        Aucun candidat trouvé pour ces critères.<br>
+        <small style="opacity:0.6">Essayez d'élargir les mots-clés ou le niveau de diplôme.</small>
+      </div>`;
+    return;
+  }
+
+  const maxScore = results[0].score;
+
+  let html = `
+    <div class="results-header">
+      <div class="results-title">Candidats Correspondants</div>
+      <div style="display:flex;gap:0.6rem;align-items:center">
+        <span class="results-count">${results.length} profils trouvés</span>
+        <button class="export-btn" onclick="exportResults()">⬇ Exporter</button>
+      </div>
+    </div>
+    <div class="filters">
+      <div class="filter-chip active" onclick="filterBy('all', this)">Tous (${results.length})</div>
+      <div class="filter-chip" onclick="filterBy('top', this)">Top 20</div>
+      <div class="filter-chip" onclick="filterBy('femme', this)">Femmes</div>
+      <div class="filter-chip" onclick="filterBy('homme', this)">Hommes</div>
+    </div>
+    <div class="candidates-grid" id="candidatesGrid">`;
+
+  results.slice(0, 50).forEach((c, i) => {
+    const initials = c.nom.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+    const age = computeAge(c.naissance);
+    const pct = Math.round((c.score / maxScore) * 100);
+    const genreClass = c.genre === 'F' ? 'f' : 'm';
+    const delay = Math.min(i * 40, 800);
+
+    html += `
+      <div class="candidate-card" data-genre="${c.genre}" data-score="${c.score}" style="animation-delay:${delay}ms">
+        <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+        <div class="card-top">
+          <div class="avatar ${genreClass}">${initials}</div>
+          <div class="candidate-name">${c.nom}</div>
+          <div class="score-badge">${pct}<span>%</span></div>
+        </div>
+        <div class="candidate-info">
+          ${age ? `<span class="tag">🎂 ${age} ans</span>` : ''}
+          <span class="tag">${c.genre === 'F' ? '♀' : '♂'} ${c.genre === 'F' ? 'Femme' : 'Homme'}</span>
+          <span class="tag">📍 ${c.ville || '—'}</span>
+          ${c.adresse ? `<span class="tag">🏘 ${c.adresse.substring(0, 35)}${c.adresse.length > 35 ? '...' : ''}</span>` : ''}
+          ${c.statutActivite ? `<span class="tag">${c.statutActivite}</span>` : ''}
+          <br>
+          ${c.diplome ? `<div style="margin-top:0.5rem;font-size:0.75rem;color:#8899bb">${c.diplome.substring(0, 80)}${c.diplome.length > 80 ? '...' : ''}</div>` : ''}
+          ${c.matchedKeywords.length ? `<div style="margin-top:0.5rem">${c.matchedKeywords.map(kw => `<span class="tag match">✓ ${kw}</span>`).join('')}</div>` : ''}
+        </div>
+        <div class="contact-row">
+          ${c.gsm ? `<a class="contact-btn" href="tel:${c.gsm}">📞 ${c.gsm}</a>` : ''}
+          ${c.email ? `<a class="contact-btn" href="mailto:${c.email}">✉ Email</a>` : '<span class="contact-btn" style="opacity:0.3">Pas d\'email</span>'}
+        </div>
+      </div>`;
+  });
+
+  html += '</div>';
+  if (results.length > 50) {
+    html += `<div style="text-align:center;margin-top:1.5rem;color:var(--muted);font-size:0.85rem">
+      Affichage des 50 premiers résultats sur ${results.length} — Exportez pour voir tous les profils.
+    </div>`;
+  }
+
+  section.innerHTML = html;
+}
+
+function filterBy(type, el) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  
+  let filtered = lastResults;
+  if (type === 'top') filtered = lastResults.slice(0, 20);
+  else if (type === 'femme') filtered = lastResults.filter(c => c.genre === 'F');
+  else if (type === 'homme') filtered = lastResults.filter(c => c.genre === 'M');
+  
+  const grid = document.getElementById('candidatesGrid');
+  if (!grid) return;
+  
+  const maxScore = lastResults[0]?.score || 1;
+  grid.innerHTML = filtered.slice(0, 50).map((c, i) => {
+    const initials = c.nom.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+    const age = computeAge(c.naissance);
+    const pct = Math.round((c.score / maxScore) * 100);
+    const genreClass = c.genre === 'F' ? 'f' : 'm';
+    
+    return `
+      <div class="candidate-card" data-genre="${c.genre}" style="animation-delay:${i*30}ms">
+        <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+        <div class="card-top">
+          <div class="avatar ${genreClass}">${initials}</div>
+          <div class="candidate-name">${c.nom}</div>
+          <div class="score-badge">${pct}<span>%</span></div>
+        </div>
+        <div class="candidate-info">
+          ${age ? `<span class="tag">🎂 ${age} ans</span>` : ''}
+          <span class="tag">${c.genre === 'F' ? '♀' : '♂'} ${c.genre === 'F' ? 'Femme' : 'Homme'}</span>
+          <span class="tag">📍 ${c.ville || '—'}</span>
+          ${c.adresse ? `<span class="tag">🏘 ${c.adresse.substring(0, 35)}${c.adresse.length > 35 ? '...' : ''}</span>` : ''}
+          ${c.statutActivite ? `<span class="tag">${c.statutActivite}</span>` : ''}
+          ${c.diplome ? `<div style="margin-top:0.5rem;font-size:0.75rem;color:#8899bb">${c.diplome.substring(0, 80)}${c.diplome.length > 80 ? '...' : ''}</div>` : ''}
+          ${c.matchedKeywords.length ? `<div style="margin-top:0.5rem">${c.matchedKeywords.map(kw => `<span class="tag match">✓ ${kw}</span>`).join('')}</div>` : ''}
+        </div>
+        <div class="contact-row">
+          ${c.gsm ? `<a class="contact-btn" href="tel:${c.gsm}">📞 ${c.gsm}</a>` : ''}
+          ${c.email ? `<a class="contact-btn" href="mailto:${c.email}">✉ Email</a>` : '<span class="contact-btn" style="opacity:0.3">Pas d\'email</span>'}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function exportResults() {
+  if (!lastResults.length) return;
+  
+  const maxScore = lastResults[0].score;
+  const rows = lastResults.map(c => ({
+    'Score (%)': Math.round((c.score / maxScore) * 100),
+    'CIN': c.cin,
+    'Nom et Prénom': c.nom,
+    'Genre': c.genre === 'F' ? 'Femme' : 'Homme',
+    'Date Naissance': c.naissance,
+    'Ville': c.ville,
+    'Adresse / Quartier': c.adresse,
+    'Diplôme': c.diplome,
+    'GSM': c.gsm,
+    'Email': c.email,
+    'Statut Inscription': c.statutInscription,
+    'Statut Activité': c.statutActivite,
+    'Mots-clés matchés': c.matchedKeywords.join(', '),
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Matching');
+  
+  const date = new Date().toISOString().split('T')[0];
+  XLSX.writeFile(wb, `matching-${date}.xlsx`);
+}
+</script>
+</body>
+</html>
