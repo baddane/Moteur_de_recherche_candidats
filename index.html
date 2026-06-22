@@ -69,7 +69,7 @@
     content: '';
     position: fixed;
     inset: 0;
-    background: 
+    background:
       radial-gradient(ellipse 80% 60% at 10% 0%, rgba(0,212,170,0.07) 0%, transparent 60%),
       radial-gradient(ellipse 60% 50% at 90% 100%, rgba(0,102,255,0.08) 0%, transparent 60%);
     pointer-events: none;
@@ -267,6 +267,8 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+    gap: 0.6rem;
   }
   .results-title {
     font-family: 'Syne', sans-serif;
@@ -490,7 +492,7 @@
   <header>
     <div class="logo">Souss-Massa <span>RH</span></div>
     <div style="display:flex;align-items:center;gap:0.8rem">
-      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️ Mode clair</button>
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">&#9728;&#65039; Mode clair</button>
       <div class="badge">Outil de Matching</div>
     </div>
   </header>
@@ -499,7 +501,7 @@
   <div class="stats-bar" id="statsBar">
     <div class="stat-card">
       <div class="stat-val" id="statTotal">0</div>
-      <div class="stat-label">Chercheurs chargés</div>
+      <div class="stat-label">Chercheurs charg&#233;s</div>
     </div>
     <div class="stat-card">
       <div class="stat-val" id="statActif">0</div>
@@ -507,11 +509,11 @@
     </div>
     <div class="stat-card">
       <div class="stat-val" id="statDiplomes">0</div>
-      <div class="stat-label">Avec diplôme</div>
+      <div class="stat-label">Avec dipl&#244;me</div>
     </div>
     <div class="stat-card">
-      <div class="stat-val" id="statMatch">—</div>
-      <div class="stat-label">Résultats dernier match</div>
+      <div class="stat-val" id="statMatch">&mdash;</div>
+      <div class="stat-label">R&#233;sultats dernier match</div>
     </div>
   </div>
 
@@ -522,20 +524,20 @@
       <div class="panel-title"><span class="dot"></span> Base Chercheurs</div>
 
       <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-        <div class="upload-icon">📂</div>
+        <div class="upload-icon">&#128194;</div>
         <div class="upload-text">
           <strong>Glissez votre export SIGEC</strong><br>
-          ou cliquez pour sélectionner<br>
-          <small style="opacity:0.6">Format .xls ou .xlsx — toutes lignes supportées</small>
+          ou cliquez pour s&#233;lectionner<br>
+          <small style="opacity:0.6">Format .xls ou .xlsx &mdash; toutes lignes support&#233;es</small>
         </div>
       </div>
       <input type="file" id="fileInput" accept=".xls,.xlsx">
 
       <div id="fileInfo" style="display:none" class="file-loaded">
-        <div class="icon">✅</div>
+        <div class="icon">&#9989;</div>
         <div class="info">
-          <div class="fname" id="fileName">—</div>
-          <div class="fcount" id="fileCount">—</div>
+          <div class="fname" id="fileName">&mdash;</div>
+          <div class="fcount" id="fileCount">&mdash;</div>
         </div>
       </div>
     </div>
@@ -544,40 +546,40 @@
     <div class="panel">
       <div class="panel-title"><span class="dot"></span> Offre d'Emploi</div>
 
-      <label>Intitulé du Poste</label>
-      <input type="text" id="poste" placeholder="Ex: Technicien en génie civil, Infirmier, Comptable...">
+      <label>Intitul&#233; du Poste</label>
+      <input type="text" id="poste" placeholder="Ex: Technicien en g&#233;nie civil, Infirmier, Comptable...">
 
-      <label>Niveau de Diplôme Requis</label>
+      <label>Niveau de Dipl&#244;me Requis</label>
       <select id="niveau">
-        <option value="">— Tous niveaux —</option>
-        <option value="bac">Baccalauréat</option>
-        <option value="bac2">Bac+2 / Technicien spécialisé</option>
+        <option value="">&mdash; Tous niveaux &mdash;</option>
+        <option value="bac">Baccalaur&#233;at</option>
+        <option value="bac2">Bac+2 / Technicien sp&#233;cialis&#233;</option>
         <option value="bac3">Bac+3 / Licence</option>
         <option value="bac5">Bac+5 / Master</option>
         <option value="technicien">Technicien</option>
-        <option value="qualification">Qualification / Spécialisation</option>
-        <option value="sans">Sans diplôme accepté</option>
+        <option value="qualification">Qualification / Sp&#233;cialisation</option>
+        <option value="sans">Sans dipl&#244;me accept&#233;</option>
       </select>
 
-      <label>Mots-clés / Spécialités (séparés par virgule)</label>
-      <input type="text" id="keywords" placeholder="Ex: comptabilité, gestion, bâtiment, informatique...">
+      <label>Mots-cl&#233;s / Sp&#233;cialit&#233;s (s&#233;par&#233;s par virgule)</label>
+      <input type="text" id="keywords" placeholder="Ex: comptabilit&#233;, gestion, b&#226;timent, informatique...">
 
       <div class="form-row">
         <div>
           <label>Genre</label>
           <select id="genre">
-            <option value="">— Indifférent —</option>
+            <option value="">&mdash; Indiff&#233;rent &mdash;</option>
             <option value="M">Homme</option>
             <option value="F">Femme</option>
           </select>
         </div>
         <div>
-          <label>Statut d'Activité</label>
+          <label>Statut d'Activit&#233;</label>
           <select id="statutActivite">
-            <option value="">— Tous —</option>
+            <option value="">&mdash; Tous &mdash;</option>
             <option value="Actif">Actif</option>
             <option value="Inactif">Inactif</option>
-            <option value="Inséré">Inséré</option>
+            <option value="Ins&#233;r&#233;">Ins&#233;r&#233;</option>
           </select>
         </div>
       </div>
@@ -585,7 +587,7 @@
       <div class="form-row">
         <div>
           <label>Ville</label>
-          <input type="text" id="ville" list="villesList" placeholder="Ex: Agadir, Inezgane..." autocomplete="off" oninput="filterQuartiers()">
+          <input type="text" id="ville" list="villesList" placeholder="Ex: Agadir, Inezgane..." autocomplete="off" oninput="debouncedFilterQuartiers()">
           <datalist id="villesList"></datalist>
         </div>
         <div>
@@ -596,7 +598,7 @@
       </div>
 
       <button class="btn-match" id="btnMatch" onclick="doMatch()" disabled>
-        ⚡ Lancer le Matching
+        &#9889; Lancer le Matching
       </button>
     </div>
   </div>
@@ -604,7 +606,7 @@
   <!-- Results -->
   <div class="results-section" id="resultsSection">
     <div class="empty-state">
-      <div class="empty-icon">🎯</div>
+      <div class="empty-icon">&#127919;</div>
       <div class="empty-text">Chargez votre base de chercheurs<br>puis saisissez une offre pour lancer le matching</div>
     </div>
   </div>
@@ -614,6 +616,22 @@
 <script>
 let allCandidates = [];
 let lastResults = [];
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+
+function normalizePhone(raw) {
+  if (!raw) return '';
+  let num = raw.replace(/[\s\-\.\(\)\/]+/g, '');
+  if (num.startsWith('+212')) num = '0' + num.slice(4);
+  else if (num.startsWith('00212')) num = '0' + num.slice(5);
+  else if (num.startsWith('212') && num.length >= 12) num = '0' + num.slice(3);
+  if (/^0[5-7]\d{8}$/.test(num)) return num;
+  return '';
+}
 
 // Drag & drop
 const zone = document.getElementById('uploadZone');
@@ -635,27 +653,24 @@ function processFile(file) {
   reader.onload = function(e) {
     try {
       let data;
-      const fileName = file.name.toLowerCase();
-      
-      // Try XLSX first
+
       try {
         const wb = XLSX.read(e.target.result, { type: 'array' });
         const ws = wb.Sheets[wb.SheetNames[0]];
         data = XLSX.utils.sheet_to_json(ws, { defval: '' });
       } catch(ex) {
-        // Fallback: parse as HTML table (SIGEC format)
         const text = new TextDecoder('utf-8').decode(new Uint8Array(e.target.result));
         data = parseHTMLTable(text);
       }
 
-      allCandidates = data.map(normalizeCandiate).filter(c => c.nom);
+      allCandidates = data.map(normalizeCandidate).filter(c => c.nom);
       updateStats();
-      
+
       document.getElementById('fileInfo').style.display = 'flex';
       document.getElementById('fileName').textContent = file.name;
-      document.getElementById('fileCount').textContent = `${allCandidates.length} chercheurs chargés`;
+      document.getElementById('fileCount').textContent = allCandidates.length + ' chercheurs chargés';
       document.getElementById('btnMatch').disabled = false;
-      
+
     } catch(err) {
       alert('Erreur lors de la lecture du fichier. Vérifiez le format.');
       console.error(err);
@@ -669,10 +684,10 @@ function parseHTMLTable(html) {
   const doc = parser.parseFromString(html, 'text/html');
   const rows = doc.querySelectorAll('tr');
   if (!rows.length) return [];
-  
+
   const headers = Array.from(rows[0].querySelectorAll('th,td')).map(td => td.textContent.trim());
   const result = [];
-  
+
   for (let i = 1; i < rows.length; i++) {
     const cells = Array.from(rows[i].querySelectorAll('td')).map(td => td.textContent.trim());
     if (!cells.length) continue;
@@ -683,8 +698,7 @@ function parseHTMLTable(html) {
   return result;
 }
 
-function normalizeCandiate(row) {
-  // Handle both possible column names
+function normalizeCandidate(row) {
   const get = (...keys) => {
     for (const k of keys) {
       const val = row[k] || row[k.toLowerCase()] || '';
@@ -692,7 +706,7 @@ function normalizeCandiate(row) {
     }
     return '';
   };
-  
+
   return {
     cin: get('CIN', 'cin'),
     nom: get('Nom et prenom', 'nom', 'NOM'),
@@ -710,19 +724,19 @@ function normalizeCandiate(row) {
 
 function updateStats() {
   document.getElementById('statTotal').textContent = allCandidates.length;
-  document.getElementById('statActif').textContent = allCandidates.filter(c => 
+  document.getElementById('statActif').textContent = allCandidates.filter(c =>
     c.statutActivite.toLowerCase().includes('actif')).length;
-  document.getElementById('statDiplomes').textContent = allCandidates.filter(c => 
+  document.getElementById('statDiplomes').textContent = allCandidates.filter(c =>
     c.diplome && !c.diplome.toLowerCase().includes('sans diplome') && c.diplome.trim() !== '').length;
   buildSuggestions();
 }
 
-// Map ville → set de quartiers extraits des adresses
 let villeQuartiersMap = {};
 
 function buildSuggestions() {
   villeQuartiersMap = {};
   const villesSet = new Set();
+  const stopWords = new Set(['bloc','appt','avec','dans','pour','ville','agadir','maroc','avenue','numero','immeuble','douar','route','lotissement','residence','cite','sidi']);
 
   allCandidates.forEach(c => {
     const ville = c.ville ? c.ville.trim() : '';
@@ -731,10 +745,8 @@ function buildSuggestions() {
       if (!villeQuartiersMap[ville]) villeQuartiersMap[ville] = new Set();
     }
 
-    // Extraire mots significatifs de l'adresse comme quartiers
     const adresse = (c.adresse || '').toLowerCase();
     const mots = adresse.match(/[a-zàâäéèêëîïôùûü]{4,}/g) || [];
-    const stopWords = new Set(['bloc','appt','avec','dans','pour','ville','agadir','maroc','avenue','numero','immeuble','douar','route','lotissement','residence','cite','sidi']);
     mots.forEach(m => {
       if (!stopWords.has(m) && ville) {
         villeQuartiersMap[ville].add(m.charAt(0).toUpperCase() + m.slice(1));
@@ -742,7 +754,6 @@ function buildSuggestions() {
     });
   });
 
-  // Remplir datalist villes
   const villesDl = document.getElementById('villesList');
   villesDl.innerHTML = '';
   [...villesSet].sort().forEach(v => {
@@ -751,8 +762,13 @@ function buildSuggestions() {
     villesDl.appendChild(opt);
   });
 
-  // Remplir datalist quartiers (tous par défaut)
   filterQuartiers();
+}
+
+let _filterTimer = null;
+function debouncedFilterQuartiers() {
+  clearTimeout(_filterTimer);
+  _filterTimer = setTimeout(filterQuartiers, 200);
 }
 
 function filterQuartiers() {
@@ -760,7 +776,6 @@ function filterQuartiers() {
   const dl = document.getElementById('quartiersList');
   dl.innerHTML = '';
 
-  // Cherche la ville correspondante dans la map
   let quartiers = new Set();
   Object.entries(villeQuartiersMap).forEach(([ville, qs]) => {
     if (!villeInput || ville.toUpperCase().includes(villeInput)) {
@@ -768,7 +783,6 @@ function filterQuartiers() {
     }
   });
 
-  // Trier par fréquence décroissante (les plus présents d'abord)
   const freq = {};
   allCandidates.forEach(c => {
     if (villeInput && !(c.ville || '').toUpperCase().includes(villeInput)) return;
@@ -781,13 +795,13 @@ function filterQuartiers() {
   });
 
   [...quartiers]
-    .filter(q => (freq[q] || 0) >= 3) // seuil minimum : au moins 3 profils
+    .filter(q => (freq[q] || 0) >= 3)
     .sort((a, b) => (freq[b] || 0) - (freq[a] || 0))
     .slice(0, 40)
     .forEach(q => {
       const opt = document.createElement('option');
       opt.value = q;
-      opt.label = `${q} (${freq[q] || 0})`;
+      opt.label = q + ' (' + (freq[q] || 0) + ')';
       dl.appendChild(opt);
     });
 }
@@ -796,7 +810,7 @@ function computeAge(naissance) {
   if (!naissance) return null;
   const parts = naissance.split('/');
   if (parts.length !== 3) return null;
-  const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+  const date = new Date(parts[2] + '-' + parts[1] + '-' + parts[0]);
   const age = Math.floor((Date.now() - date.getTime()) / (365.25 * 24 * 3600 * 1000));
   return isNaN(age) ? null : age;
 }
@@ -806,7 +820,7 @@ const niveauMap = {
   bac2: ['bac + 2', 'technicien spécialisé', 'brevet de technicien'],
   bac3: ['bac + 3', 'bachelor', 'licence', 'diplôme du 1er cycle', '1er cycle'],
   bac5: ['bac + 5', 'master', 'ingénieur', '2ème cycle', 'deug'],
-  technicien: ['technicien ,', 'technicien,'],
+  technicien: ['technicien,', 'technicien ,', 'technicien/', 'technicien '],
   qualification: ['qualification', 'spécialisation', 'csp', 'cqp'],
   sans: ['sans diplome', 'sans diplôme', 'aucune formation'],
 };
@@ -818,20 +832,17 @@ function scoreCandidate(c, poste, niveauKey, keywords, villeFilter, quartierFilt
   const adresseLower = (c.adresse || '').toLowerCase();
   const matchedKeywords = [];
 
-  // Extraire les spécialités (partie après la virgule dans chaque segment niveau,spécialité/)
   const specialites = diplomeLower.split('/').map(s => {
     const parts = s.split(',');
     return parts.slice(1).join(',').trim();
   }).filter(s => s.length > 0);
   const specialitesJoined = specialites.join(' ');
 
-  // ── 1. Vérifier le niveau diplôme ──────────────────────────────
   let niveauMatch = false;
   if (niveauKey && niveauMap[niveauKey]) {
     niveauMatch = niveauMap[niveauKey].some(p => diplomeLower.includes(p));
   }
 
-  // ── 2. Vérifier poste et keywords dans les SPÉCIALITÉS uniquement ──
   let contentScore = 0;
   const hasContentCriteria = !!(poste && poste.trim()) || keywords.length > 0;
 
@@ -854,33 +865,25 @@ function scoreCandidate(c, poste, niveauKey, keywords, villeFilter, quartierFilt
     }
   });
 
-  // ── 3. Règles de combinaison strictes ─────────────────────────
-  // Si niveau ET contenu spécifiés → les deux doivent matcher
   if (niveauKey && hasContentCriteria) {
     if (!niveauMatch || contentScore === 0) return { score: -1, matchedKeywords };
     score = contentScore + 25;
   }
-  // Si seulement niveau → doit matcher le niveau
   else if (niveauKey && !hasContentCriteria) {
     if (!niveauMatch) return { score: -1, matchedKeywords };
     score = 30;
   }
-  // Si seulement contenu → doit avoir au moins un match spécialité
   else if (!niveauKey && hasContentCriteria) {
     if (contentScore === 0) return { score: -1, matchedKeywords };
     score = contentScore;
   }
-  // Aucun critère → laisse passer
   else {
     score = 10;
   }
 
-  // ── 4. Bonus qualité profil ────────────────────────────────────
   if (c.statutActivite.toLowerCase().includes('actif')) score += 8;
   if (c.statutInscription.toLowerCase().includes('validé')) score += 4;
 
-  // ── 5. Ville — filtre strict ───────────────────────────────────
-  // ── 5. Ville — filtre strict insensible à la casse ────────────
   if (villeFilter) {
     const vf = villeFilter.toLowerCase().trim();
     if (villeLower === vf || adresseLower.includes(vf)) {
@@ -890,14 +893,12 @@ function scoreCandidate(c, poste, niveauKey, keywords, villeFilter, quartierFilt
     }
   }
 
-  // ── 6. Quartier — saisie libre, matching mot par mot ──────────
   if (quartierFilter) {
     const qf = quartierFilter.toLowerCase().trim();
-    // Cherche chaque mot significatif dans l'adresse
     const qfWords = qf.split(/\s+/).filter(w => w.length > 2);
     const adresseFull = (adresseLower + ' ' + villeLower);
     const matched = qfWords.length > 0
-      ? qfWords.some(w => adresseFull.includes(w))  // au moins un mot correspond
+      ? qfWords.some(w => adresseFull.includes(w))
       : adresseFull.includes(qf);
     if (matched) {
       score += 15;
@@ -919,6 +920,47 @@ function toggleTheme() {
   btn.textContent = isLight ? '🌙 Mode sombre' : '☀️ Mode clair';
 }
 
+function renderCard(c, maxScore, i) {
+  const initials = escapeHtml(c.nom.split(' ').slice(0, 2).map(n => n[0] || '').join('').toUpperCase());
+  const age = computeAge(c.naissance);
+  const pct = Math.round((c.score / maxScore) * 100);
+  const genreClass = c.genre === 'F' ? 'f' : 'm';
+  const delay = Math.min(i * 40, 800);
+
+  const nom = escapeHtml(c.nom);
+  const ville = escapeHtml(c.ville || '—');
+  const adresse = escapeHtml((c.adresse || '').substring(0, 35)) + (c.adresse && c.adresse.length > 35 ? '...' : '');
+  const diplome = escapeHtml((c.diplome || '').substring(0, 80)) + (c.diplome && c.diplome.length > 80 ? '...' : '');
+  const statutActivite = escapeHtml(c.statutActivite || '');
+  const gsm = escapeHtml(c.gsm || '');
+  const email = escapeHtml(c.email || '');
+  const gsmClean = encodeURIComponent(c.gsm || '');
+  const emailClean = encodeURIComponent(c.email || '');
+
+  return '<div class="candidate-card" data-genre="' + escapeHtml(c.genre) + '" data-score="' + c.score + '" style="animation-delay:' + delay + 'ms">'
+    + '<div class="score-bar"><div class="score-bar-fill" style="width:' + pct + '%"></div></div>'
+    + '<div class="card-top">'
+    + '<div class="avatar ' + genreClass + '">' + initials + '</div>'
+    + '<div class="candidate-name">' + nom + '</div>'
+    + '<div class="score-badge">' + pct + '<span>%</span></div>'
+    + '</div>'
+    + '<div class="candidate-info">'
+    + (age ? '<span class="tag">🎂 ' + age + ' ans</span>' : '')
+    + '<span class="tag">' + (c.genre === 'F' ? '♀ Femme' : '♂ Homme') + '</span>'
+    + '<span class="tag">📍 ' + ville + '</span>'
+    + (c.adresse ? '<span class="tag">🏨 ' + adresse + '</span>' : '')
+    + (c.statutActivite ? '<span class="tag">' + statutActivite + '</span>' : '')
+    + '<br>'
+    + (c.diplome ? '<div style="margin-top:0.5rem;font-size:0.75rem;color:#8899bb">' + diplome + '</div>' : '')
+    + (c.matchedKeywords.length ? '<div style="margin-top:0.5rem">' + c.matchedKeywords.map(function(kw) { return '<span class="tag match">✓ ' + escapeHtml(kw) + '</span>'; }).join('') + '</div>' : '')
+    + '</div>'
+    + '<div class="contact-row">'
+    + (c.gsm ? '<a class="contact-btn" href="tel:' + gsmClean + '">📞 ' + gsm + '</a>' : '')
+    + (c.email ? '<a class="contact-btn" href="mailto:' + emailClean + '">✉ Email</a>' : '<span class="contact-btn" style="opacity:0.3">Pas d\'email</span>')
+    + '</div>'
+    + '</div>';
+}
+
 function doMatch() {
   const poste = document.getElementById('poste').value.trim();
   const niveau = document.getElementById('niveau').value;
@@ -935,8 +977,8 @@ function doMatch() {
     return;
   }
 
-  document.getElementById('resultsSection').innerHTML = `
-    <div class="loading"><div class="spinner"></div> Analyse de ${allCandidates.length} profils...</div>`;
+  document.getElementById('resultsSection').innerHTML =
+    '<div class="loading"><div class="spinner"></div> Analyse de ' + allCandidates.length + ' profils...</div>';
 
   setTimeout(() => {
     const scored = allCandidates
@@ -951,78 +993,51 @@ function doMatch() {
 
     lastResults = scored;
     document.getElementById('statMatch').textContent = scored.length;
-    renderResults(scored, poste);
+    renderResults(scored);
   }, 300);
 }
 
-function renderResults(results, poste) {
+function renderResults(results) {
   const section = document.getElementById('resultsSection');
-  
+
   if (!results.length) {
-    section.innerHTML = `
-      <div class="no-results">
-        <div style="font-size:2rem;margin-bottom:0.5rem">🔍</div>
-        Aucun candidat trouvé pour ces critères.<br>
-        <small style="opacity:0.6">Essayez d'élargir les mots-clés ou le niveau de diplôme.</small>
-      </div>`;
+    section.innerHTML =
+      '<div class="no-results">'
+      + '<div style="font-size:2rem;margin-bottom:0.5rem">🔍</div>'
+      + 'Aucun candidat trouvé pour ces critères.<br>'
+      + '<small style="opacity:0.6">Essayez d\'élargir les mots-clés ou le niveau de diplôme.</small>'
+      + '</div>';
     return;
   }
 
   const maxScore = results[0].score;
 
-  let html = `
-    <div class="results-header">
-      <div class="results-title">Candidats Correspondants</div>
-      <div style="display:flex;gap:0.6rem;align-items:center">
-        <span class="results-count">${results.length} profils trouvés</span>
-        <button class="export-btn" onclick="exportResults()">⬇ Exporter</button>
-      </div>
-    </div>
-    <div class="filters">
-      <div class="filter-chip active" onclick="filterBy('all', this)">Tous (${results.length})</div>
-      <div class="filter-chip" onclick="filterBy('top', this)">Top 20</div>
-      <div class="filter-chip" onclick="filterBy('femme', this)">Femmes</div>
-      <div class="filter-chip" onclick="filterBy('homme', this)">Hommes</div>
-    </div>
-    <div class="candidates-grid" id="candidatesGrid">`;
+  let html =
+    '<div class="results-header">'
+    + '<div class="results-title">Candidats Correspondants</div>'
+    + '<div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap">'
+    + '<span class="results-count">' + results.length + ' profils trouvés</span>'
+    + '<button class="export-btn" onclick="exportResults()">⬇ Exporter Excel</button>'
+    + '<button class="export-btn" onclick="exportPhones()">📱 Exporter Téléphones</button>'
+    + '</div>'
+    + '</div>'
+    + '<div class="filters">'
+    + '<div class="filter-chip active" onclick="filterBy(\'all\', this)">Tous (' + results.length + ')</div>'
+    + '<div class="filter-chip" onclick="filterBy(\'top\', this)">Top 20</div>'
+    + '<div class="filter-chip" onclick="filterBy(\'femme\', this)">Femmes</div>'
+    + '<div class="filter-chip" onclick="filterBy(\'homme\', this)">Hommes</div>'
+    + '</div>'
+    + '<div class="candidates-grid" id="candidatesGrid">';
 
   results.slice(0, 50).forEach((c, i) => {
-    const initials = c.nom.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
-    const age = computeAge(c.naissance);
-    const pct = Math.round((c.score / maxScore) * 100);
-    const genreClass = c.genre === 'F' ? 'f' : 'm';
-    const delay = Math.min(i * 40, 800);
-
-    html += `
-      <div class="candidate-card" data-genre="${c.genre}" data-score="${c.score}" style="animation-delay:${delay}ms">
-        <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%"></div></div>
-        <div class="card-top">
-          <div class="avatar ${genreClass}">${initials}</div>
-          <div class="candidate-name">${c.nom}</div>
-          <div class="score-badge">${pct}<span>%</span></div>
-        </div>
-        <div class="candidate-info">
-          ${age ? `<span class="tag">🎂 ${age} ans</span>` : ''}
-          <span class="tag">${c.genre === 'F' ? '♀' : '♂'} ${c.genre === 'F' ? 'Femme' : 'Homme'}</span>
-          <span class="tag">📍 ${c.ville || '—'}</span>
-          ${c.adresse ? `<span class="tag">🏘 ${c.adresse.substring(0, 35)}${c.adresse.length > 35 ? '...' : ''}</span>` : ''}
-          ${c.statutActivite ? `<span class="tag">${c.statutActivite}</span>` : ''}
-          <br>
-          ${c.diplome ? `<div style="margin-top:0.5rem;font-size:0.75rem;color:#8899bb">${c.diplome.substring(0, 80)}${c.diplome.length > 80 ? '...' : ''}</div>` : ''}
-          ${c.matchedKeywords.length ? `<div style="margin-top:0.5rem">${c.matchedKeywords.map(kw => `<span class="tag match">✓ ${kw}</span>`).join('')}</div>` : ''}
-        </div>
-        <div class="contact-row">
-          ${c.gsm ? `<a class="contact-btn" href="tel:${c.gsm}">📞 ${c.gsm}</a>` : ''}
-          ${c.email ? `<a class="contact-btn" href="mailto:${c.email}">✉ Email</a>` : '<span class="contact-btn" style="opacity:0.3">Pas d\'email</span>'}
-        </div>
-      </div>`;
+    html += renderCard(c, maxScore, i);
   });
 
   html += '</div>';
   if (results.length > 50) {
-    html += `<div style="text-align:center;margin-top:1.5rem;color:var(--muted);font-size:0.85rem">
-      Affichage des 50 premiers résultats sur ${results.length} — Exportez pour voir tous les profils.
-    </div>`;
+    html += '<div style="text-align:center;margin-top:1.5rem;color:var(--muted);font-size:0.85rem">'
+      + 'Affichage des 50 premiers résultats sur ' + results.length + ' — Exportez pour voir tous les profils.'
+      + '</div>';
   }
 
   section.innerHTML = html;
@@ -1031,50 +1046,22 @@ function renderResults(results, poste) {
 function filterBy(type, el) {
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  
+
   let filtered = lastResults;
   if (type === 'top') filtered = lastResults.slice(0, 20);
   else if (type === 'femme') filtered = lastResults.filter(c => c.genre === 'F');
   else if (type === 'homme') filtered = lastResults.filter(c => c.genre === 'M');
-  
+
   const grid = document.getElementById('candidatesGrid');
   if (!grid) return;
-  
+
   const maxScore = lastResults[0]?.score || 1;
-  grid.innerHTML = filtered.slice(0, 50).map((c, i) => {
-    const initials = c.nom.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
-    const age = computeAge(c.naissance);
-    const pct = Math.round((c.score / maxScore) * 100);
-    const genreClass = c.genre === 'F' ? 'f' : 'm';
-    
-    return `
-      <div class="candidate-card" data-genre="${c.genre}" style="animation-delay:${i*30}ms">
-        <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%"></div></div>
-        <div class="card-top">
-          <div class="avatar ${genreClass}">${initials}</div>
-          <div class="candidate-name">${c.nom}</div>
-          <div class="score-badge">${pct}<span>%</span></div>
-        </div>
-        <div class="candidate-info">
-          ${age ? `<span class="tag">🎂 ${age} ans</span>` : ''}
-          <span class="tag">${c.genre === 'F' ? '♀' : '♂'} ${c.genre === 'F' ? 'Femme' : 'Homme'}</span>
-          <span class="tag">📍 ${c.ville || '—'}</span>
-          ${c.adresse ? `<span class="tag">🏘 ${c.adresse.substring(0, 35)}${c.adresse.length > 35 ? '...' : ''}</span>` : ''}
-          ${c.statutActivite ? `<span class="tag">${c.statutActivite}</span>` : ''}
-          ${c.diplome ? `<div style="margin-top:0.5rem;font-size:0.75rem;color:#8899bb">${c.diplome.substring(0, 80)}${c.diplome.length > 80 ? '...' : ''}</div>` : ''}
-          ${c.matchedKeywords.length ? `<div style="margin-top:0.5rem">${c.matchedKeywords.map(kw => `<span class="tag match">✓ ${kw}</span>`).join('')}</div>` : ''}
-        </div>
-        <div class="contact-row">
-          ${c.gsm ? `<a class="contact-btn" href="tel:${c.gsm}">📞 ${c.gsm}</a>` : ''}
-          ${c.email ? `<a class="contact-btn" href="mailto:${c.email}">✉ Email</a>` : '<span class="contact-btn" style="opacity:0.3">Pas d\'email</span>'}
-        </div>
-      </div>`;
-  }).join('');
+  grid.innerHTML = filtered.slice(0, 50).map((c, i) => renderCard(c, maxScore, i)).join('');
 }
 
 function exportResults() {
   if (!lastResults.length) return;
-  
+
   const maxScore = lastResults[0].score;
   const rows = lastResults.map(c => ({
     'Score (%)': Math.round((c.score / maxScore) * 100),
@@ -1095,9 +1082,40 @@ function exportResults() {
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Matching');
-  
+
   const date = new Date().toISOString().split('T')[0];
-  XLSX.writeFile(wb, `matching-${date}.xlsx`);
+  XLSX.writeFile(wb, 'matching-' + date + '.xlsx');
+}
+
+function exportPhones() {
+  if (!lastResults.length) return;
+
+  const seen = new Set();
+  const phones = [];
+
+  lastResults.forEach(c => {
+    const num = normalizePhone(c.gsm);
+    if (num && !seen.has(num)) {
+      seen.add(num);
+      phones.push(num);
+    }
+  });
+
+  if (!seen.has('0662804412')) {
+    phones.push('0662804412');
+  }
+
+  const content = phones.join('\n');
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const date = new Date().toISOString().split('T')[0];
+  a.download = 'telephones-' + date + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 </script>
 </body>
