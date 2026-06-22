@@ -625,11 +625,12 @@ function escapeHtml(str) {
 
 function normalizePhone(raw) {
   if (!raw) return '';
-  let num = raw.replace(/[\s\-\.\(\)\/]+/g, '');
+  let num = String(raw).replace(/[\s\-\.\(\)\/]+/g, '');
   if (num.startsWith('+212')) num = '0' + num.slice(4);
   else if (num.startsWith('00212')) num = '0' + num.slice(5);
   else if (num.startsWith('212') && num.length >= 12) num = '0' + num.slice(3);
-  if (/^0[5-7]\d{8}$/.test(num)) return num;
+  if (/^[5-7]\d{8}$/.test(num)) num = '0' + num;
+  if (/^0[5-7]\d{8}$/.test(num) && num !== '0000000000') return num;
   return '';
 }
 
@@ -657,7 +658,7 @@ function processFile(file) {
       try {
         const wb = XLSX.read(e.target.result, { type: 'array' });
         const ws = wb.Sheets[wb.SheetNames[0]];
-        data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+        data = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false });
       } catch(ex) {
         const text = new TextDecoder('utf-8').decode(new Uint8Array(e.target.result));
         data = parseHTMLTable(text);
