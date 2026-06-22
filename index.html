@@ -1400,8 +1400,34 @@ function exportResults() {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Matching');
 
-  const date = new Date().toISOString().split('T')[0];
-  XLSX.writeFile(wb, 'matching-' + date + '.xlsx');
+  XLSX.writeFile(wb, buildExportName() + '.xlsx');
+}
+
+function buildExportName() {
+  const parts = [];
+  const poste = document.getElementById('poste').value.trim();
+  if (poste) parts.push(poste.split(/\s+/).slice(0, 3).join('_'));
+
+  const niveauEl = document.getElementById('niveau');
+  if (niveauEl.value) parts.push(niveauEl.options[niveauEl.selectedIndex].text.replace(/[^a-zA-ZÀ-ÿ0-9+]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, ''));
+
+  const keywords = document.getElementById('keywords').value.trim();
+  if (keywords) parts.push(keywords.split(',').map(k => k.trim()).filter(Boolean).join('_'));
+
+  const genreEl = document.getElementById('genre');
+  if (genreEl.value) parts.push(genreEl.value === 'F' ? 'femme' : 'homme');
+
+  const statutEl = document.getElementById('statutActivite');
+  if (statutEl.value) parts.push(statutEl.value.toLowerCase());
+
+  const ville = document.getElementById('ville').value.trim();
+  if (ville) parts.push(ville);
+
+  const quartier = document.getElementById('quartier').value.trim();
+  if (quartier) parts.push(quartier);
+
+  if (!parts.length) return 'export';
+  return parts.join('_').replace(/[^a-zA-Z0-9À-ÿ_+\-]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
 }
 
 function exportPhones() {
@@ -1427,8 +1453,7 @@ function exportPhones() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  const date = new Date().toISOString().split('T')[0];
-  a.download = 'telephones-' + date + '.txt';
+  a.download = buildExportName() + '.txt';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
