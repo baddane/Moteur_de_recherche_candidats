@@ -1055,22 +1055,40 @@ let villeQuartiersMap = {};
 function buildSuggestions() {
   villeQuartiersMap = {};
   const villesSet = new Set();
-  const stopWords = new Set(['bloc','appt','avec','dans','pour','ville','agadir','maroc','avenue','numero','immeuble','douar','route','lotissement','residence','cite','sidi']);
+  const stopWords = new Set([
+    'bloc','appt','avec','dans','pour','ville','maroc','avenue','numero',
+    'immeuble','douar','route','lotissement','residence','résidence','cite',
+    'cité','sidi','prince','villa','quartier','secteur','etage','appartement',
+    'batiment','centre','zone','haut','angle','arrondissement','commune',
+    'municipalite','annexe','rural','urbain','prefecture','province',
+    'moulay','mohamed','abdelkader','youssef','hassan','lhay','erac'
+  ]);
+
+  const wordFreqByVille = {};
 
   allCandidates.forEach(c => {
     const ville = c.ville ? c.ville.trim() : '';
     if (ville) {
       villesSet.add(ville);
-      if (!villeQuartiersMap[ville]) villeQuartiersMap[ville] = new Set();
+      if (!wordFreqByVille[ville]) wordFreqByVille[ville] = {};
     }
 
     const adresse = (c.adresse || '').toLowerCase();
     const mots = adresse.match(/[a-zàâäéèêëîïôùûü]{4,}/g) || [];
+    const villeNorm = normalizeText(ville);
     mots.forEach(m => {
-      if (!stopWords.has(m) && ville) {
-        villeQuartiersMap[ville].add(m.charAt(0).toUpperCase() + m.slice(1));
-      }
+      if (stopWords.has(m)) return;
+      if (!ville) return;
+      const mNorm = normalizeText(m);
+      if (villeNorm.includes(mNorm) || mNorm.includes(villeNorm)) return;
+      if (!wordFreqByVille[ville][m]) wordFreqByVille[ville][m] = 0;
+      wordFreqByVille[ville][m]++;
     });
+  });
+
+  Object.entries(wordFreqByVille).forEach(([ville, freqs]) => {
+    const grouped = deduplicateQuartiers(freqs);
+    villeQuartiersMap[ville] = grouped;
   });
 
   const villesDl = document.getElementById('villesList');
@@ -1084,6 +1102,63 @@ function buildSuggestions() {
   filterQuartiers();
 }
 
+function areSimilarQuartiers(a, b) {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  const lenRatio = Math.min(a.length, b.length) / Math.max(a.length, b.length);
+  if (lenRatio < 0.6) return false;
+  if (a.includes(b) || b.includes(a)) return lenRatio >= 0.75;
+  const simAB = bigramSimilarity(a, b);
+  const simBA = bigramSimilarity(b, a);
+  const minSim = Math.min(simAB, simBA);
+  const threshold = Math.min(a.length, b.length) <= 5 ? 0.8 : 0.7;
+  return minSim >= threshold;
+}
+
+function deduplicateQuartiers(freqMap) {
+  const entries = Object.entries(freqMap).filter(([, c]) => c >= 3);
+  entries.sort((a, b) => b[1] - a[1]);
+
+  const groups = [];
+  const used = new Set();
+
+  entries.forEach(([word, count]) => {
+    if (used.has(word)) return;
+    const normW = normalizeText(word);
+    let group = { canonical: word, count: count, variants: [word] };
+
+    entries.forEach(([other, otherCount]) => {
+      if (other === word || used.has(other)) return;
+      const normO = normalizeText(other);
+      if (areSimilarQuartiers(normW, normO)) {
+        group.count += otherCount;
+        group.variants.push(other);
+        if (otherCount > freqMap[group.canonical]) group.canonical = other;
+        used.add(other);
+      }
+    });
+
+    used.add(word);
+    groups.push(group);
+  });
+
+  const result = {};
+  groups.forEach(g => {
+    result[g.canonical.charAt(0).toUpperCase() + g.canonical.slice(1)] = { count: g.count, variants: g.variants };
+  });
+  return result;
+}
+
+function bigramSimilarity(a, b) {
+  if (!a || !b) return 0;
+  const aGrams = buildNgrams(a, 2);
+  const bGrams = new Set(buildNgrams(b, 2));
+  if (!aGrams.length) return 0;
+  let hits = 0;
+  aGrams.forEach(g => { if (bGrams.has(g)) hits++; });
+  return hits / aGrams.length;
+}
+
 let _filterTimer = null;
 function debouncedFilterQuartiers() {
   clearTimeout(_filterTimer);
@@ -1095,32 +1170,26 @@ function filterQuartiers() {
   const dl = document.getElementById('quartiersList');
   dl.innerHTML = '';
 
-  let quartiers = new Set();
-  Object.entries(villeQuartiersMap).forEach(([ville, qs]) => {
-    if (!villeInput || fuzzyContains(ville, villeInput)) {
-      qs.forEach(q => quartiers.add(q));
-    }
-  });
-
-  const freq = {};
-  allCandidates.forEach(c => {
-    if (villeInput && !fuzzyContains(c.ville || '', villeInput)) return;
-    const adresse = (c.adresse || '').toLowerCase();
-    quartiers.forEach(q => {
-      if (adresse.includes(q.toLowerCase())) {
-        freq[q] = (freq[q] || 0) + 1;
+  const merged = {};
+  Object.entries(villeQuartiersMap).forEach(([ville, quartiers]) => {
+    if (villeInput && !fuzzyContains(ville, villeInput)) return;
+    Object.entries(quartiers).forEach(([name, data]) => {
+      if (merged[name]) {
+        merged[name].count += data.count;
+        data.variants.forEach(v => { if (!merged[name].variants.includes(v)) merged[name].variants.push(v); });
+      } else {
+        merged[name] = { count: data.count, variants: [...data.variants] };
       }
     });
   });
 
-  [...quartiers]
-    .filter(q => (freq[q] || 0) >= 3)
-    .sort((a, b) => (freq[b] || 0) - (freq[a] || 0))
+  Object.entries(merged)
+    .sort((a, b) => b[1].count - a[1].count)
     .slice(0, 40)
-    .forEach(q => {
+    .forEach(([name, data]) => {
       const opt = document.createElement('option');
-      opt.value = q;
-      opt.label = q + ' (' + (freq[q] || 0) + ')';
+      opt.value = name;
+      opt.label = name + ' (' + data.count + ')';
       dl.appendChild(opt);
     });
 }
@@ -1212,11 +1281,20 @@ function scoreCandidate(c, poste, niveauKey, keywords, villeFilter, quartierFilt
   }
 
   if (quartierFilter) {
-    const qfWords = quartierFilter.trim().split(/\s+/).filter(w => w.length > 2);
     const adresseFull = (c.adresse || '') + ' ' + (c.ville || '');
-    const matched = qfWords.length > 0
-      ? fuzzyWordMatch(adresseFull, qfWords)
-      : fuzzyContains(adresseFull, quartierFilter);
+    let matched = false;
+    const villeKey = (villeFilter || '').trim();
+    const qMap = villeKey && villeQuartiersMap[villeKey] ? villeQuartiersMap[villeKey] : {};
+    const entry = qMap[quartierFilter];
+    if (entry && entry.variants && entry.variants.length > 1) {
+      matched = entry.variants.some(v => fuzzyContains(adresseFull, v));
+    }
+    if (!matched) {
+      const qfWords = quartierFilter.trim().split(/\s+/).filter(w => w.length > 2);
+      matched = qfWords.length > 0
+        ? fuzzyWordMatch(adresseFull, qfWords)
+        : fuzzyContains(adresseFull, quartierFilter);
+    }
     if (matched) {
       score += 15;
       matchedKeywords.push('📍 ' + quartierFilter);
